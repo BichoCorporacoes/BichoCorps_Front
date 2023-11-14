@@ -12,6 +12,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import InputMask from 'react-input-mask';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 function Copyright(props: any) {
@@ -19,7 +20,7 @@ function Copyright(props: any) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-      BichoCorporation
+        BichoCorporation
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -75,6 +76,29 @@ export default function Register() {
                 <TextField
                   required
                   fullWidth
+                  name="dateOfBirth"
+                  label="Data de Nascimento"
+                  type="date"
+                  id="dateOfBirth"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="cpf"
+                  label="CPF"
+                  id="cpf"
+                  autoComplete="cpf"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
                   id="email"
                   label="Email"
                   name="email"
@@ -103,9 +127,11 @@ export default function Register() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, backgroundColor: 'orangeRed', '&:hover': {
-                backgroundColor: '#db2504',
-              },  }}
+              sx={{
+                mt: 3, mb: 2, backgroundColor: 'orangeRed', '&:hover': {
+                  backgroundColor: '#db2504',
+                },
+              }}
             >
               Cadastrar
             </Button>
