@@ -13,10 +13,9 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import axios from 'axios';
+import api from '../service/api';
 import { Modal } from '@mui/material';
 
-const BASE_URL = process.env.BASE_URL;
 
 function Copyright(props: any) {
   return (
@@ -35,6 +34,12 @@ const defaultTheme = createTheme();
 
 export default function Register() {
   const [open, setOpen] = useState(false);
+  const [termosDeUso, setTermosDeUso] = useState(false)
+  const [marketing, setMarketing] = useState(false)
+  const [atualizacao, setAtualizacao] = useState(false)
+  const [responsavel, setResponsavel] = useState({} as any)
+
+
 
   const calcularIdade = (dataNascimento: string): number => {
     const hoje = new Date();
@@ -46,27 +51,38 @@ export default function Register() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
-    if (calcularIdade(data.get('dateOfBirth') as string) < 16) {
+    if (calcularIdade(data.get('dateOfBirth') as string) < 16 && !responsavel) {
       setOpen(true);
       return;
     }
-
-    console.log({
+    const body =  {
+      nome: data.get('firstName'),
+      nick: data.get('nickName'),
       email: data.get('email'),
       senha: data.get('password'),
       dataNascimento: data.get('dateOfBirth'),
       cpf: data.get('cpf'),
+      responsavel: responsavel,
+      termos:{
+        uso_condicao: true,
+        markting_comunicaoo: true,
+        markting_atualizacao: true
+      }
+    }
+
+    api.post("/v1/user/CreateUser", body).then((response) => {
+      console.log(response);
     });
+
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="sm">
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 3,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -80,7 +96,7 @@ export default function Register() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
-            <Grid item xs={12}>
+              <Grid item xs={12}>
                 <TextField
                   autoComplete="given-name"
                   name="firstName"
@@ -94,10 +110,10 @@ export default function Register() {
               <Grid item xs={12}>
                 <TextField
                   autoComplete="given-name"
-                  name="firstName"
+                  name="nickName"
                   required
                   fullWidth
-                  id="firstName"
+                  id="nickName"
                   label="Nickname"
                   autoFocus
                 />
@@ -149,10 +165,33 @@ export default function Register() {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
+                  control={<Checkbox checked={termosDeUso} onChange={e => setTermosDeUso(e.target.checked)} color="primary" />}
+                  label={
+                    <Typography variant="body2" >
+                      Eu concordo com os{' '}
+                      <Link href="#">
+                        Termos de Uso
+                      </Link>
+                      {' '}
+                      *
+                    </Typography>
+
+                  }
                 />
               </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={<Checkbox checked={marketing} onChange={e => setMarketing(e.target.checked)} color="primary" />}
+                  label="Eu quero em receber promoções de marketing via e-mail."
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={<Checkbox checked={atualizacao} onChange={e => setAtualizacao(e.target.checked)} color="primary" />}
+                  label="Eu quero receber novidades e atualizações do jogo via e-mail."
+                />
+              </Grid>
+
             </Grid>
             <Modal
               open={open}
@@ -162,42 +201,105 @@ export default function Register() {
             >
               <Box sx={{
                 position: 'absolute',
-                width: 800,
+                width: 900,
                 bgcolor: 'background.paper',
+                justifyContent: "center",
                 boxShadow: 24,
                 p: 4,
-                top: '30%',
+                top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)', // Centraliza vertical e horizontalmente
               }}>
-                <Typography id="modal-modal-title" sx={{textAlign: "center"}} variant="h5" component="h1">
+                <Typography id="modal-modal-title" sx={{ textAlign: "center" }} variant="h4" component="h1">
                   Você precisa de um responsável para se cadastrar!
                 </Typography>
+                <Typography id="modal-modal-title" sx={{ textAlign: "center" }} variant="h6" component="h6">
+                  Por favor, insira os dados do responsável
+                </Typography>
 
-                  <Box   id="modal-modal-description" sx={{ mt: 3 }}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={10} sx={{textAlign: "center"}}>
-                        <TextField
-                          autoComplete="given-name"
-                          name="firstName"
-                          required
-                          fullWidth
-                          id="firstName"
-                          label="Nome de usuário"
-                          autoFocus
-                        />
-                      </Grid>
-                      </Grid>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      sx={{ mt: 3, mb: 2, backgroundColor: 'orangeRed', '&:hover': {
+                <Box id="modal-modal-description" sx={{ mt: 3 }}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <TextField
+                        autoComplete="given-name"
+                        name="nomeResponsavel"
+                        required
+                        fullWidth
+                        id="nomeResponsavel"
+                        label="Nome completo"
+                        autoFocus
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        autoComplete="given-name"
+                        name="nickResponsavel"
+                        required
+                        fullWidth
+                        id="nickResponsavel"
+                        label="Nickname"
+                        autoFocus
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        name="dataResponsavel"
+                        label="Data de Nascimento"
+                        type="date"
+                        id="dataResponsavel"
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        name="cpfResponsavel"
+                        label="CPF"
+                        id="cpfResponsavel"
+                        autoComplete="cpf"
+                        inputProps={{ maxLength: 11 }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        id="emailResponsavel"
+                        label="Email"
+                        name="emailResponsavel"
+                        autoComplete="email"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        name="senhaResponsavel"
+                        label="Senha"
+                        type="password"
+                        id="senhaResponsavel"
+                        autoComplete="new-password"
+                      />
+                    </Grid>
+                  </Grid>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      mt: 3, mb: 2, ml: 40, backgroundColor: 'orangeRed', '&:hover': {
                         backgroundColor: '#db2504',
-                      }, }}
-                    >
-                      Cadastrar responsável
-                    </Button>
-                  </Box>
+                        justifyContent: "center",
+                      },
+                    }}
+                  >
+                    Cadastrar responsável
+                  </Button>
+                </Box>
 
               </Box>
             </Modal>
