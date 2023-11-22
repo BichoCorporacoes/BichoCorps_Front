@@ -9,12 +9,15 @@ import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import api from '../service/api';
 import { Modal } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 
 function Copyright(props: any) {
@@ -38,8 +41,9 @@ export default function Register() {
   const [marketing, setMarketing] = useState(false)
   const [atualizacao, setAtualizacao] = useState(false)
   const [responsavel, setResponsavel] = useState({} as any)
-
-
+  const [showError, setShowError] = useState(false);
+  const [showResponsavelError, setShowResponsavelError] = useState(false);
+  const navigate = useNavigate();
 
   const calcularIdade = (dataNascimento: string): number => {
     const hoje = new Date();
@@ -50,12 +54,16 @@ export default function Register() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!termosDeUso) {
+      setShowError(true);
+      return;
+    }
     const data = new FormData(event.currentTarget);
-    if (calcularIdade(data.get('dateOfBirth') as string) < 16 && !responsavel) {
+    if (calcularIdade(data.get('dateOfBirth') as string) < 16 && checkFields(responsavel) === false) {
       setOpen(true);
       return;
     }
-    const body =  {
+    const body = {
       nome: data.get('firstName'),
       nick: data.get('nickName'),
       email: data.get('email'),
@@ -63,17 +71,35 @@ export default function Register() {
       dataNascimento: data.get('dateOfBirth'),
       cpf: data.get('cpf'),
       responsavel: responsavel,
-      termos:{
-        uso_condicao: true,
-        markting_comunicaoo: true,
-        markting_atualizacao: true
+      termos: {
+        uso_condicao: new Date().toISOString().split('T')[0],
+        markting_comunicaoo: marketing,
+        markting_atualizacao: atualizacao
       }
     }
+    try {
+      api.post("/v1/user/CreateUser", body).then((response) => {
+        navigate('/login');
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
-    api.post("/v1/user/CreateUser", body).then((response) => {
-      console.log(response);
-    });
+  };
+  
+  const checkFields = (responsavel: any) => {
+    if (responsavel.nome && responsavel.nick && responsavel.email && responsavel.senha && responsavel.dataNascimento && responsavel.cpf) {
+      return true;
+    }
+    return false;
+  }
 
+  const handleCloseError = (event: any, reason: any) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setShowError(false);
   };
 
   return (
@@ -193,6 +219,19 @@ export default function Register() {
               </Grid>
 
             </Grid>
+
+            <Snackbar open={showError} autoHideDuration={6000} onClose={handleCloseError}  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+              <MuiAlert onClose={()=> setShowError(false)} severity="error" sx={{ width: '100%' }}>
+                Você precisa concordar com os Termos de Uso para continuar.
+              </MuiAlert>
+            </Snackbar>
+
+            <Snackbar open={showResponsavelError} autoHideDuration={6000} onClose={()=>{setShowResponsavelError(false)}}  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+              <MuiAlert onClose={()=> setShowResponsavelError(false)} severity="error" sx={{ width: '100%' }}>
+                  Preencha todos os campos do responsavel.
+              </MuiAlert>
+            </Snackbar>
+
             <Modal
               open={open}
               onClose={() => setOpen(false)}
@@ -227,6 +266,7 @@ export default function Register() {
                         fullWidth
                         id="nomeResponsavel"
                         label="Nome completo"
+                        onChange={e => setResponsavel({ ...responsavel, nome: e.target.value })}
                         autoFocus
                       />
                     </Grid>
@@ -237,6 +277,7 @@ export default function Register() {
                         required
                         fullWidth
                         id="nickResponsavel"
+                        onChange={e => setResponsavel({ ...responsavel, nick: e.target.value })}
                         label="Nickname"
                         autoFocus
                       />
@@ -248,6 +289,7 @@ export default function Register() {
                         name="dataResponsavel"
                         label="Data de Nascimento"
                         type="date"
+                        onChange={e => setResponsavel({ ...responsavel, dataNascimento: e.target.value })}
                         id="dataResponsavel"
                         InputLabelProps={{
                           shrink: true,
@@ -260,6 +302,7 @@ export default function Register() {
                         fullWidth
                         name="cpfResponsavel"
                         label="CPF"
+                        onChange={e => setResponsavel({ ...responsavel, cpf: e.target.value })}
                         id="cpfResponsavel"
                         autoComplete="cpf"
                         inputProps={{ maxLength: 11 }}
@@ -271,6 +314,7 @@ export default function Register() {
                         fullWidth
                         id="emailResponsavel"
                         label="Email"
+                        onChange={e => setResponsavel({ ...responsavel, email: e.target.value })}
                         name="emailResponsavel"
                         autoComplete="email"
                       />
@@ -281,6 +325,7 @@ export default function Register() {
                         fullWidth
                         name="senhaResponsavel"
                         label="Senha"
+                        onChange={e => setResponsavel({ ...responsavel, senha: e.target.value })}
                         type="password"
                         id="senhaResponsavel"
                         autoComplete="new-password"
@@ -290,6 +335,7 @@ export default function Register() {
                   <Button
                     type="submit"
                     variant="contained"
+                    onClick={() => checkFields(responsavel) ? setOpen(false) : setShowResponsavelError(true)}
                     sx={{
                       mt: 3, mb: 2, ml: 40, backgroundColor: 'orangeRed', '&:hover': {
                         backgroundColor: '#db2504',
