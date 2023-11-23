@@ -42,7 +42,8 @@ export default function Login() {
     api.post("/v1/login", body).then((response) => {
       console.log(response.data);
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('user', JSON.stringify(response.data.data));
+      window.location.href = "/";
     });
 
   };

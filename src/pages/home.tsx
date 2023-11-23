@@ -33,7 +33,7 @@ function Copyright(props: any) {
     );
   }
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+console.log(localStorage.getItem('user'));
 const defaultTheme = createTheme();
 
 const handleDownload = () => {
@@ -63,7 +63,7 @@ export default function Home() {
           </Typography>
           {
             localStorage.getItem('token') ? 
-            <IconButton color="inherit" sx={{left: "85%", fontSize: '2.5rem'}} href="/fake-adm" >
+            <IconButton color="inherit" sx={{left: "85%", fontSize: '2.5rem'}} href="/my-account" >
               <AccountCircleIcon />
             </IconButton>
             :  <IconButton color="inherit" sx={{left: "85%", fontSize: '2.5rem'}} href="/login" >
@@ -81,6 +81,7 @@ export default function Home() {
             pb: 6,
           }}
         >
+
           <Container maxWidth="lg">
             <Typography
               component="h3"
@@ -137,7 +138,7 @@ No entanto, na BichoGames, não paramos por aí. Estamos ansiosos para o futuro,
                   </CardContent>
                   <CardActions>
                     <Button size="small">Saiba Mais</Button>
-                    <Button size="small" onClick={handleDownload}>Download</Button>
+                    <Button size="small" href='http://drive.google.com/u/0/uc?id=15e4fxQBCfe73xDG8JkyvFGzdwNksPiSj&export=download'>Download</Button>
                   </CardActions>
                 </Card>
                 
