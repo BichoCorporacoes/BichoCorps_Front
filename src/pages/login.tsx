@@ -12,6 +12,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import api from '../service/api';
 
 function Copyright(props: any) {
   return (
@@ -29,13 +30,21 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function Login() {
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+
+    const body = {
       email: data.get('email'),
-      password: data.get('password'),
+      senha: data.get('password'),
+    }
+    api.post("/v1/login", body).then((response) => {
+      console.log(response.data);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     });
+
   };
 
   return (
@@ -93,10 +102,6 @@ export default function Login() {
                 id="password"
                 autoComplete="current-password"
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Manter login"
-              />
               <Button
                 type="submit"
                 fullWidth
@@ -108,11 +113,6 @@ export default function Login() {
                 Entrar
               </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Esqueci minha senha
-                  </Link>
-                </Grid>
                 <Grid item>
                   <Link href="/register" variant="body2">
                     {"Não possui uma conta? Cadastre-se"}
