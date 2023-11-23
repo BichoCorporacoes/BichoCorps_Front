@@ -33,21 +33,12 @@ function Copyright(props: any) {
     );
   }
 
-console.log(localStorage.getItem('user'));
 const defaultTheme = createTheme();
 
-const handleDownload = () => {
-    // Substitua 'caminho/do/seu/arquivo' pelo caminho real do seu arquivo no projeto
-    const filePath = '../public/LOL.msi';
-
-    // Crie um elemento 'a' (link) invisível e clique nele para iniciar o download
-    const link = document.createElement('a');
-    link.href = filePath;
-    link.download = 'LOL.msi'; // Nome que será dado ao arquivo durante o download
-    link.click();
-  };
 
 export default function Home() {
+  console.log(localStorage.getItem('token'));
+  console.log(localStorage.getItem('user'));
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -62,7 +53,7 @@ export default function Home() {
             BichoGames
           </Typography>
           {
-            localStorage.getItem('token') ? 
+            localStorage.getItem('token') && localStorage.getItem('user') ? 
             <IconButton color="inherit" sx={{left: "85%", fontSize: '2.5rem'}} href="/my-account" >
               <AccountCircleIcon />
             </IconButton>
@@ -178,7 +169,7 @@ No entanto, na BichoGames, não paramos por aí. Estamos ansiosos para o futuro,
                     sx={{
                       pt: '56.25%',
                     }}
-                    image="https://i.imgur.com/TDo3LXJ.jpeg"
+                    image="https://i.imgur.com/smfugvb.jpg"
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography gutterBottom variant="h5" component="h2">

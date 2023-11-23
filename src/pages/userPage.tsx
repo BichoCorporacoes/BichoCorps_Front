@@ -11,25 +11,30 @@ import Typography from '@mui/material/Typography';
 import api from '../service/api';
 
 export default function UserPage() {
-  // Obtém as informações do usuário do localStorage
   const userData = JSON.parse(localStorage.getItem('user') || "{}");
 
-  // Estado para controlar se as informações do usuário devem ser exibidas
   const [showUserInfo, setShowUserInfo] = useState(true);
 
-  // Função para lidar com a exclusão das informações do usuário
   const handleDeleteUser = () => {
-
-    api.delete(`/v1/user/DeleteUser/${userData.id}`).then((response) => {
+    const config = {
+      headers: {
+        authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    };
+    console.log(config)
+    console.log(userData)
+    api.delete(`/v1/user/DeleteUser/${userData.id}`, config).then((response) => {
       console.log(response.data);
     });
+  
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     setShowUserInfo(false);
+    
   };
 
   if (!showUserInfo) {
-    window.location.href = '/login';
+    window.location.href = '/';
     return null; 
   }
 
@@ -41,7 +46,7 @@ export default function UserPage() {
             <Typography variant="h6" color="inherit" noWrap>
               BichoGames
             </Typography>
-            {localStorage.getItem('token') ? (
+            {localStorage.getItem('token') && localStorage.getItem("user") ? (
               <IconButton color="inherit" sx={{ left: "85%", fontSize: '2.5rem' }} href="/my-account">
                 <AccountCircleIcon />
               </IconButton>
